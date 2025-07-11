@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+      "web-search": {
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ],
+        "transport": "stdio"
+      },
+      "file-system": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "/path/to/your/project/multi-agent-system/output"
+        ], 
+        "transport": "stdio"
+      }
+    }
+  }

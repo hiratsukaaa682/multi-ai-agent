@@ -1,0 +1,13 @@
+langchain
+langchain-core
+langchain-openai
+langchain_tavily
+langchain-mcp-adapters
+langchain_google_genai
+langchain_community
+langgraph
+dotenv
+python-dotenv 
+pillow
+google-cloud-aiplatform
+streamlit
