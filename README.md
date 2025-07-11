@@ -15,7 +15,7 @@ LangChain、LangGraph、Streamlitを使用して構築された、AIエージェ
 ### 処理フロー
 ![処理フロー](sequence_diagram.png)
 
------
+---
 
 ## 🛠️ 主な使用技術
 
@@ -23,7 +23,7 @@ LangChain、LangGraph、Streamlitを使用して構築された、AIエージェ
   * **フロントエンド**: Streamlit
   * **Agent Tools**: Model-Context-Protocol (MCP)
 
------
+---
 
 ## 🚀 セットアップと実行方法
 
@@ -94,7 +94,7 @@ streamlit run multi_ai_agent.py
 
 ブラウザで `http://localhost:8501` を開きます。
 
------
+---
 
 ## 📂 プロジェクト構成
 
@@ -108,3 +108,9 @@ multi-agent-system/
 ├── agent_conversation.log  # エージェントの動作ログ
 └── requirements.txt        # 依存ライブラリ
 ```
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
