@@ -18,9 +18,9 @@ LangChain、LangGraph、Streamlitを使用して構築された、AIエージェ
 
 ## 🛠️ 主な使用技術
 
-  * **Backend Logic**: LangChain, LangGraph, Google Gemini (generative-ai)
+  * **バックエンド**: LangChain, LangGraph, Google Gemini (generative-ai)
+  * **フロントエンド**: Streamlit
   * **Agent Tools**: Model-Context-Protocol (MCP)
-  * **Frontend**: Streamlit
 
 -----
 
