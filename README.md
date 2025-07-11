@@ -13,7 +13,7 @@ LangChain、LangGraph、Streamlitを使用して構築された、AIエージェ
 例えば、「ミスタードーナツの期間限定商品を調べてCSVファイルにまとめて」といった、Web検索とファイル操作を組み合わせた複雑なタスクを一度の指示で自動実行します。
 
 ### 処理フロー
-[処理フロー](./sequence_diagram.png)
+![処理フロー](sequence_diagram.png)
 
 -----
 
