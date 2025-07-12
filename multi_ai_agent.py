@@ -7,7 +7,6 @@ import uuid
 import asyncio
 from dotenv import load_dotenv, find_dotenv
 from typing import List, Annotated, TypedDict
-from datetime import datetime
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage, ToolMessage, messages_to_dict, messages_from_dict
@@ -164,16 +163,21 @@ def initialize_graph():
     supervisor_llm_instance = ChatGoogleGenerativeAI(model=supervisor_model_name, temperature=0.0, google_api_key=google_api_key)
     worker_model_name = "gemini-2.0-flash"
     worker_llm_instance = ChatGoogleGenerativeAI(model=worker_model_name, temperature=0.0, google_api_key=google_api_key)
+    
     with open("mcp_config.json", "r") as f:
         mcp_config = json.load(f)
     mcp_client = MultiServerMCPClient(mcp_config["mcpServers"])
+    
     tools = run_async_in_sync(mcp_client.get_tools())
     sanitized_tools = [sanitize_schema(convert_to_openai_function(t)) for t in tools]
+    
     workers = {
         "Webサーファー": create_worker(worker_llm_instance, sanitized_tools, "あなたはWeb検索の専門家です。web-searchツールを使用することができます。\n与えられた指示を達成するために適切な検索ワードを考え、必要な情報を検索してください。検索結果は、次の担当者（または最終的な回答者）が理解しやすいように、明確かつ詳細に報告してください。"),
         "ファイルオペレーター": create_worker(worker_llm_instance, sanitized_tools, "あなたはローカルファイルを操作する専門家です。file-systemツールを使用することができます。\n与えられた指示（ファイルパスや書き込む内容など）に正確に従って、ファイル操作を実行してください。操作が成功したか、失敗したかを明確に報告してください。"),
     }
+    
     supervisor_prompt, supervisor_llm = create_supervisor(supervisor_llm_instance, list(workers.keys()))
+
     def supervisor_node(state: AgentState):
         logger.info("--- Supervisor Node ---")
         logger.info(f"Input State: {state['messages']}")
@@ -195,6 +199,7 @@ def initialize_graph():
             return {"messages": state["messages"] + [supervisor_comment, instruction_for_worker], "next": next_action}
         else:
             return {"messages": state["messages"] + [supervisor_comment], "next": next_action}
+
     def worker_node(state: AgentState):
         worker_name = state["next"]
         logger.info(f"--- Worker Node: {worker_name} ---")
@@ -214,20 +219,28 @@ def initialize_graph():
             response = AIMessage(content=error_message, name=worker_name)
         response.name = worker_name
         return {"messages": state["messages"] + [response]}
-    tool_node = ToolNode(tools)
+
+    _tool_node = ToolNode(tools)
+
+    async def custom_tool_node(state: AgentState):
+        tool_results = await _tool_node.ainvoke(state)
+        return {"messages": state["messages"] + tool_results["messages"]}
+
     def after_worker_router(state: AgentState):
         last_message = state["messages"][-1]
         if hasattr(last_message, "tool_calls") and last_message.tool_calls:
             return "tools"
         return "supervisor"
+
     def supervisor_router(state: AgentState):
         next_val = state.get("next")
         if not next_val or next_val == "FINISH":
             return END
         return next_val
+
     workflow = StateGraph(AgentState)
     workflow.add_node("supervisor", supervisor_node)
-    workflow.add_node("tools", tool_node)
+    workflow.add_node("tools", custom_tool_node)
     for name in workers:
         workflow.add_node(name, worker_node)
         workflow.add_conditional_edges(name, after_worker_router, {"tools": "tools", "supervisor": "supervisor"})
@@ -296,8 +309,6 @@ if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
     st.session_state.messages = []
 
-graph_config = {"configurable": {"thread_id": st.session_state.session_id}}
-
 def render_internal_message(msg: BaseMessage):
     avatar_map = {"Supervisor": "🤖", "Webサーファー": "🌐", "ファイルオペレーター": "📁", "internal_instruction": "📝", "tool_call": "🛠️", "tool_result": "✅"}
     name, avatar = "System", "⚙️"
@@ -362,8 +373,9 @@ if prompt := st.chat_input("Web検索やファイル操作など、何でも聞�
 
     with st.spinner("🧠 AIエージェントが思考中..."):
         try:
+            config = {"configurable": {"thread_id": str(uuid.uuid4())}}
             input_messages = {"messages": st.session_state.messages}
-            final_state = run_async_in_sync(graph.ainvoke(input_messages, graph_config))
+            final_state = run_async_in_sync(graph.ainvoke(input_messages, config))
             st.session_state.messages = final_state["messages"]
             save_conversation(st.session_state.session_id, st.session_state.messages)
             st.rerun()
