@@ -1,4 +1,4 @@
-# Multi-Agent AI System 🤖
+# マルチAIエージェントシステム 🤖
 
 LangChain、LangGraph、Streamlitを使用して構築された、AIエージェントが協調してタスクを解決するマルチエージェントシステムです。
 
