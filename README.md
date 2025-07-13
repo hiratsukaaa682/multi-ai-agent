@@ -99,7 +99,7 @@ streamlit run multi_ai_agent.py
 ## 📂 プロジェクト構成
 
 ```
-multi-agent-system/
+multi-ai-agent/
 ├── conversation_history/   # 会話履歴の保存先
 ├── output/                 # ファイル操作の対象ディレクトリ
 ├── .env                    # 環境変数ファイル
