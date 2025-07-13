@@ -35,8 +35,8 @@ LangChain、LangGraph、Streamlitを使用して構築された、AIエージェ
 ### 2\. リポジトリのクローン
 
 ```bash
-git clone https://github.com/your-username/multi-agent-system.git
-cd multi-agent-system
+git clone https://github.com/hiratsukaaa682/multi-ai-agent.git
+cd multi-ai-agent
 ```
 
 ### 3\. 依存ライブラリのインストール
